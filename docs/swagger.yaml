@@ -1,0 +1,133 @@
+basePath: /
+definitions:
+  admins.credentials:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 12
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  queries.CreateAdminRow:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+    type: object
+  queries.GetAdminBySessionRow:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: Minimal Go 1.27 API using net/http, JSON v2, SQLite and sqlc.
+  title: Go HTTP template API
+  version: "1.0"
+paths:
+  /admins:
+    post:
+      consumes:
+      - application/json
+      description: The first admin is public bootstrap; subsequent admins require
+        authentication.
+      parameters:
+      - description: Admin credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/admins.credentials'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/queries.CreateAdminRow'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create an admin
+      tags:
+      - admins
+  /admins/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/queries.GetAdminBySessionRow'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get the authenticated admin
+      tags:
+      - admins
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Admin credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/admins.credentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Authenticate an admin
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

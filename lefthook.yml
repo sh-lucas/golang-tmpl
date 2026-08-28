@@ -1,0 +1,22 @@
+pre-commit:
+  parallel: false
+  commands:
+    format:
+      glob: "*.go"
+      run: gofmt -w {staged_files}
+      stage_fixed: true
+    sqlc:
+      run: sqlc generate
+      stage_fixed: true
+    swagger:
+      run: swag init -q -g main.go -d cmd/backend,internal/features/admins,queries -o docs --parseInternal --parseGoList=false --outputTypes json,yaml
+      stage_fixed: true
+    modules:
+      run: go mod tidy
+      stage_fixed: true
+    lint:
+      run: go vet ./...
+    test:
+      run: go test ./...
+    build:
+      run: go build -buildvcs=false -o /tmp/golang-tmpl-backend ./cmd/backend
