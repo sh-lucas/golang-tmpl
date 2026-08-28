@@ -17,7 +17,9 @@ jobs:
         with:
           go-version-file: go.mod
           cache-dependency-path: go.sum
-      - name: Vet
-        run: go vet ./...
-      - name: Test
-        run: go test -count=1 ./...
+      - name: Install sqlc
+        run: |
+          go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: Make test
+        run: make test
