@@ -12,7 +12,8 @@ import (
 
 type handler struct {
 	*helpers.HTTP
-	queries *queries.Queries
+	queries   *queries.Queries
+	jwtSecret string
 }
 
 type credentials struct {
@@ -20,8 +21,8 @@ type credentials struct {
 	Password string `json:"password" validate:"required,min=12"`
 }
 
-func RegisterRoutes(mux *http.ServeMux, q *queries.Queries) {
-	h := handler{HTTP: helpers.NewHTTP(), queries: q}
+func RegisterRoutes(mux *http.ServeMux, q *queries.Queries, jwtSecret string) {
+	h := handler{HTTP: helpers.NewHTTP(), queries: q, jwtSecret: jwtSecret}
 	mux.HandleFunc("POST /admins", h.create)
 	mux.HandleFunc("POST /auth/login", h.login)
 	mux.HandleFunc("GET /admins/me", h.me)
@@ -92,7 +93,7 @@ func (h handler) login(w http.ResponseWriter, r *http.Request) {
 		request.Error("invalid email or password", http.StatusUnauthorized)
 		return
 	}
-	token, tokenHash := newSession()
+	token, tokenHash := newSession(h.jwtSecret)
 	if err := h.queries.CreateAdminSession(r.Context(), queries.CreateAdminSessionParams{
 		TokenHash: tokenHash,
 		AdminID:   admin.ID,

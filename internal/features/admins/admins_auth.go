@@ -2,6 +2,7 @@ package admins
 
 import (
 	"context"
+	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
 	"database/sql"
@@ -19,15 +20,20 @@ func (h handler) authenticate(ctx context.Context, authorization string) (querie
 	if !found || token == "" {
 		return queries.GetAdminBySessionRow{}, sql.ErrNoRows
 	}
-	hash := sha256.Sum256([]byte(token))
+	hash := tokenHash(h.jwtSecret, token)
 	return h.queries.GetAdminBySession(ctx, queries.GetAdminBySessionParams{
 		TokenHash: hash[:],
 		ExpiresAt: time.Now().UTC().Format(time.RFC3339),
 	})
 }
 
-func newSession() (string, []byte) {
+func newSession(secret string) (string, []byte) {
 	token := rand.Text()
-	hash := sha256.Sum256([]byte(token))
-	return token, hash[:]
+	return token, tokenHash(secret, token)
+}
+
+func tokenHash(secret, token string) []byte {
+	hash := hmac.New(sha256.New, []byte(secret))
+	_, _ = hash.Write([]byte(token))
+	return hash.Sum(nil)
 }

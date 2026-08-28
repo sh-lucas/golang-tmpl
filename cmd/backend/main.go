@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -30,15 +31,19 @@ func main() {
 }
 
 func run() error {
-	dbPath := env("DB_PATH", "data/app.db")
-	db, err := database.Open(context.Background(), dbPath)
+	databaseURI := env("DATABASE_URI", "data/app.db")
+	jwtSecret := env("JWT_SECRET", "")
+	if jwtSecret == "" {
+		return errors.New("JWT_SECRET must be configured")
+	}
+	db, err := database.Open(context.Background(), databaseURI)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
 	mux := http.NewServeMux()
-	admins.RegisterRoutes(mux, queries.New(db))
+	admins.RegisterRoutes(mux, queries.New(db), jwtSecret)
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -46,7 +51,7 @@ func run() error {
 	})
 
 	server := &http.Server{
-		Addr:              env("ADDR", ":3000"),
+		Addr:              ":" + strings.TrimPrefix(env("SERVER_PORT", "3000"), ":"),
 		Handler:           mux,
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,

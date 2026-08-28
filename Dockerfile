@@ -17,8 +17,9 @@ COPY --from=builder /backend /backend
 
 VOLUME ["/data"]
 
-ENV DB_PATH=/data/app.db
-ENV ADDR=:3000
+ENV DATABASE_URI=/data/app.db
+ENV SERVER_PORT=3000
+ENV JWT_SECRET=""
 
 EXPOSE 3000
 

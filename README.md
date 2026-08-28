@@ -20,7 +20,7 @@ Depois execute:
 make run
 ```
 
-O Air executa `sqlc generate` antes de cada build. A API escuta em `:3000` e usa `data/app.db`; `ADDR` e `DB_PATH` sobrescrevem esses valores.
+O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para configurar `DATABASE_URI`, `SERVER_PORT` e o `JWT_SECRET` obrigatório. A aplicação lê variáveis exportadas pelo ambiente; ela não carrega `.env` automaticamente.
 
 ## Autenticação de exemplo
 

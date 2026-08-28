@@ -21,7 +21,7 @@ func TestAdminAuthenticationFlow(t *testing.T) {
 	t.Cleanup(func() { _ = db.Close() })
 
 	mux := http.NewServeMux()
-	admins.RegisterRoutes(mux, queries.New(db))
+	admins.RegisterRoutes(mux, queries.New(db), "test-secret")
 
 	created := request(t, mux, http.MethodPost, "/admins", `{"email":"admin@example.com","password":"correct horse battery staple"}`, "")
 	if created.Code != http.StatusCreated {
@@ -71,7 +71,7 @@ func TestAdminRequestsRejectInvalidJSON(t *testing.T) {
 	t.Cleanup(func() { _ = db.Close() })
 
 	mux := http.NewServeMux()
-	admins.RegisterRoutes(mux, queries.New(db))
+	admins.RegisterRoutes(mux, queries.New(db), "test-secret")
 	response := request(t, mux, http.MethodPost, "/admins", `{"email":"admin@example.com","password":"long enough password","extra":true}`, "")
 	if response.Code != http.StatusBadRequest {
 		t.Fatalf("unknown JSON field: status=%d body=%s", response.Code, response.Body.String())
