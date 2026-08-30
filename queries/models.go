@@ -4,6 +4,10 @@
 
 package queries
 
+import (
+	"database/sql"
+)
+
 type Admin struct {
 	ID           int64  `json:"id"`
 	Email        string `json:"email"`
@@ -16,4 +20,13 @@ type AdminSession struct {
 	AdminID   int64  `json:"admin_id"`
 	ExpiresAt string `json:"expires_at"`
 	CreatedAt string `json:"created_at"`
+}
+
+type Queue struct {
+	ID               int64          `json:"id"`
+	Data             []byte         `json:"data"`
+	Reference        string         `json:"reference"`
+	EnqueuedAt       string         `json:"enqueued_at"`
+	UnavailableUntil string         `json:"unavailable_until"`
+	ProcessedAt      sql.NullString `json:"processed_at"`
 }

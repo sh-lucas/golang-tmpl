@@ -3,6 +3,7 @@ sql:
   - engine: "sqlite"
     queries:
       - "internal/features/admins/admins_queries.sql"
+      - "common/queue/queue_queries.sql"
     schema: "migrations/"
     gen:
       go:

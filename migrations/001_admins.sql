@@ -14,3 +14,16 @@ CREATE TABLE admin_sessions (
 
 CREATE INDEX admin_sessions_admin_id_idx ON admin_sessions(admin_id);
 CREATE INDEX admin_sessions_expires_at_idx ON admin_sessions(expires_at);
+
+CREATE TABLE queue (
+    id INTEGER PRIMARY KEY,
+    data BLOB NOT NULL,
+    reference TEXT NOT NULL,
+    enqueued_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
+    unavailable_until TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
+    processed_at TEXT
+);
+
+CREATE INDEX queue_pending_idx
+ON queue(reference, unavailable_until, enqueued_at, id)
+WHERE processed_at IS NULL;
