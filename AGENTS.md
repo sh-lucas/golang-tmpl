@@ -6,6 +6,12 @@
 - Apresente um plano e aguarde aprovação antes de implementar features.
 - Não amplie o escopo nem execute operações Git sem autorização explícita.
 
+## Delegação ─ Recomendação forte para operação no dia-a-dia.
+
+- Para cada change request, delegue o ciclo de investigar, entender, implementar, testar e corrigir para exatamente um subagente pequeno. `gpt-5.6-luna (high)` e Claude Sonnet 5 são apenas exemplos adequados; evite agentes de geração anterior.
+- O agente principal (quando 5.6 Terra/Sol, ou Opus/Sonnet) para revisar o resultado, conferir escopo e entregar. Ele não deve repetir o ciclo de pesquisa e correções do subagente.
+- Após a revisão, o agente principal executa `make check` apenas uma vez como validação final. O subagente absorve as demais tool calls e tentativas necessárias para chegar a esse ponto.
+
 ## Arquitetura
 
 - Use Go 1.27, generics, `net/http` e `encoding/json/v2`; evite frameworks.
@@ -24,6 +30,6 @@
 
 ## Validação
 
-- Após alterar SQL, execute `sqlc generate`; após alterar rotas, gere o Swagger.
-- Antes de entregar, execute `gofmt`, `go vet ./...`, `go test ./...` e `go build ./cmd/backend`.
+- `make check` é a fonte única de validação: ele executa `sqlc generate`, gera o Swagger, aplica `gofmt`, executa `go vet ./...` e `go test ./...`.
+- Antes de entregar, o subagente usa esse alvo durante as iterações; o agente principal executa `make check` somente uma vez como validação final. Não é necessário executar `go build`.
 - Informe exatamente as verificações executadas e seus resultados.

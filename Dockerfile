@@ -7,6 +7,8 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
+RUN go test ./...
+
 ARG CGO_ENABLED=0
 RUN test "$CGO_ENABLED" = "0" && CGO_ENABLED="$CGO_ENABLED" GOOS=linux go build -buildvcs=false -trimpath -ldflags="-s -w" -o /backend ./cmd/backend
 
