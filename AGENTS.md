@@ -10,7 +10,8 @@
 
 - Use Go 1.27, generics, `net/http` e `encoding/json/v2`; evite frameworks.
 - Organize cada domínio em `internal/features/<feature>`.
-- Nomeie arquivos como `<feature>_handlers.go`, `<feature>_queries.sql`, `<feature>_test.go` e `<feature>_<responsabilidade>.go`.
+- Cada feature começa em `<feature>.go`: ele declara as rotas, mantém os comentários OpenAPI e contém as funções principais do endpoint. O `handler` permanece explícito e executa cada operação; os demais arquivos usam esse handler para responsabilidades específicas, como autenticação.
+- Nomeie arquivos complementares como `<feature>_queries.sql`, `<feature>_test.go` e `<feature>_<responsabilidade>.go`.
 - Mantenha o SQL-fonte junto da feature, enumere-o no `sqlc.yaml` e importe somente o pacote gerado `queries/`.
 - Prefira funções diretas, dependências explícitas e stdlib. Não crie abstrações sem necessidade atual.
 

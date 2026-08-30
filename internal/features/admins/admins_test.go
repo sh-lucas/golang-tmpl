@@ -32,6 +32,10 @@ func TestAdminAuthenticationFlow(t *testing.T) {
 	if duplicate.Code != http.StatusUnauthorized {
 		t.Fatalf("unprotected second admin: status=%d body=%s", duplicate.Code, duplicate.Body.String())
 	}
+	unauthenticatedMe := request(t, mux, http.MethodGet, "/admins/me", "", "")
+	if unauthenticatedMe.Code != http.StatusUnauthorized {
+		t.Fatalf("unprotected me: status=%d body=%s", unauthenticatedMe.Code, unauthenticatedMe.Body.String())
+	}
 
 	invalid := request(t, mux, http.MethodPost, "/auth/login", `{"email":"admin@example.com","password":"wrong password"}`, "")
 	if invalid.Code != http.StatusUnauthorized {
