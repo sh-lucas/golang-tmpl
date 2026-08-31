@@ -4,6 +4,7 @@ go 1.27
 
 require (
 	github.com/go-playground/validator/v10 v10.30.3
+	github.com/sh-lucas/libsql-handler v1.0.2
 	golang.org/x/crypto v0.52.0
 	modernc.org/sqlite v1.50.1
 )

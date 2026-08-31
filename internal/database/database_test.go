@@ -23,6 +23,9 @@ func TestOpenMigratesDatabase(t *testing.T) {
 	assertPragma(t, db, "cache_size", -65536)
 	assertPragmaAtLeast(t, db, "mmap_size", 128<<20)
 	assertPragma(t, db, "synchronous", 1)
+	if got := db.Stats().MaxOpenConnections; got != 15 {
+		t.Fatalf("maximum open connections = %d, want 15", got)
+	}
 }
 
 func assertPragma(t *testing.T, db interface{ QueryRow(string, ...any) *sql.Row }, name string, want int64) {

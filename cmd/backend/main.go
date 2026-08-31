@@ -14,6 +14,7 @@ import (
 
 	"github.com/rox-projects/golang-tmpl/internal/database"
 	"github.com/rox-projects/golang-tmpl/internal/features/admins"
+	"github.com/rox-projects/golang-tmpl/internal/features/libsql"
 	"github.com/rox-projects/golang-tmpl/queries"
 )
 
@@ -37,6 +38,10 @@ func run() error {
 	if jwtSecret == "" {
 		return errors.New("JWT_SECRET must be configured")
 	}
+	accessKey := env("DATABASE_ACCESS_KEY", "")
+	if accessKey == "" {
+		return errors.New("DATABASE_ACCESS_KEY must be configured")
+	}
 	db, err := database.Open(context.Background(), filepath.Join(databaseRoot, "sqlite.db"))
 	if err != nil {
 		return err
@@ -45,6 +50,8 @@ func run() error {
 
 	mux := http.NewServeMux()
 	admins.RegisterRoutes(mux, queries.New(db), jwtSecret)
+	libsqlHandler := libsql.RegisterRoutes(mux, db, accessKey)
+	defer libsqlHandler.Close()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)

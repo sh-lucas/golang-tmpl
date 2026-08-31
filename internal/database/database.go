@@ -30,7 +30,12 @@ func Open(ctx context.Context, uri string) (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
 	}
-	db.SetMaxOpenConns(1)
+
+	// SQLite does not need a lot of connections,
+	// and opens new ones on demand without TCP handshaking.
+	db.SetMaxOpenConns(15)
+	db.SetMaxIdleConns(1)
+
 	if err := db.PingContext(ctx); err != nil {
 		_ = db.Close()
 		return nil, fmt.Errorf("ping database: %w", err)

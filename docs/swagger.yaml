@@ -125,6 +125,30 @@ paths:
       summary: Authenticate an admin
       tags:
       - auth
+  /libsql:
+    post:
+      consumes:
+      - application/json
+      description: Connect using a Bearer token configured in DATABASE_ACCESS_KEY.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Execute SQL through libSQL HTTP
+      tags:
+      - libsql
 securityDefinitions:
   BearerAuth:
     in: header

@@ -22,7 +22,7 @@ Depois execute:
 just run
 ```
 
-O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para configurar `DATABASE_ROOT`, `SERVER_PORT` e o `JWT_SECRET` obrigatório. `DATABASE_ROOT` contém o SQLite principal em `sqlite.db` e os blobs grandes em `large_blobs/`. Ao executar receitas do Just, o `.env` é carregado automaticamente; executando o binário diretamente, a aplicação lê apenas variáveis exportadas pelo ambiente.
+O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para configurar `DATABASE_ROOT`, `SERVER_PORT`, `JWT_SECRET` e `DATABASE_ACCESS_KEY` obrigatórios. `DATABASE_ROOT` contém o SQLite principal em `sqlite.db` e os blobs grandes em `large_blobs/`. Ao executar receitas do Just, o `.env` é carregado automaticamente; executando o binário diretamente, a aplicação lê apenas variáveis exportadas pelo ambiente.
 
 ## Autenticação de exemplo
 
@@ -30,6 +30,7 @@ O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para con
 - `POST /auth/login`: retorna um token de sessão válido por 24 horas.
 - `GET /admins/me`: retorna o admin autenticado.
 - `GET /health`: verifica o processo HTTP.
+- `/libsql/`: expõe o mesmo SQLite pelo protocolo HTTP do libSQL. Use o token configurado em `DATABASE_ACCESS_KEY` como Bearer token; no DBeaver, informe-o como senha e deixe o usuário vazio, com a URL `http://localhost:3000/libsql`.
 
 Criação e login recebem `{"email":"admin@example.com","password":"correct horse battery staple"}`.
 
