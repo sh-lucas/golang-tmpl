@@ -18,6 +18,7 @@ import (
 	"github.com/rox-projects/golang-tmpl/internal/features/health"
 	"github.com/rox-projects/golang-tmpl/internal/features/libsql"
 	"github.com/rox-projects/golang-tmpl/queries"
+	// mkhandler:imports
 )
 
 // @title Go HTTP template API
@@ -51,6 +52,7 @@ func run() (runErr error) {
 	mux := http.NewServeMux()
 	admins.RegisterRoutes(mux, queries.New(db), jwtSecret)
 	libsqlHandler := libsql.RegisterRoutes(mux, db, accessKey)
+	// mkhandler:routes
 	defer func() {
 		libsqlHandler.Close()
 		checkpointCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
