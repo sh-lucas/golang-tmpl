@@ -22,6 +22,13 @@ type AdminSession struct {
 	CreatedAt string `json:"created_at"`
 }
 
+type Blob struct {
+	Key   string `json:"key"`
+	Meta  string `json:"meta"`
+	Data  []byte `json:"data"`
+	Large int64  `json:"large"`
+}
+
 type Queue struct {
 	ID               int64          `json:"id"`
 	Data             []byte         `json:"data"`

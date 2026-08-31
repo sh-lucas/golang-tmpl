@@ -27,3 +27,10 @@ CREATE TABLE queue (
 CREATE INDEX queue_pending_idx
 ON queue(reference, unavailable_until, enqueued_at, id)
 WHERE processed_at IS NULL;
+
+CREATE TABLE blobs (
+    key TEXT PRIMARY KEY,
+    meta TEXT NOT NULL,
+    data BLOB NOT NULL DEFAULT X'',
+    large INTEGER NOT NULL CHECK (large IN (0, 1))
+);

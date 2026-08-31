@@ -4,6 +4,7 @@ sql:
     queries:
       - "internal/features/admins/admins_queries.sql"
       - "common/queue/queue_queries.sql"
+      - "common/blobs/blobs_queries.sql"
     schema: "migrations/"
     gen:
       go:
