@@ -1,4 +1,4 @@
-// Package large stores blobs up to 100 MiB as files next to the SQLite DB.
+// Package large stores blobs up to 100 MiB under the database root.
 package large
 
 import (
@@ -18,9 +18,9 @@ type Blob struct {
 	Reader io.ReadCloser
 }
 
-// Create streams source into <database directory>/blobs and records metadata.
-func Create(ctx context.Context, db *sql.DB, databaseURI, meta, extension string, source io.Reader) (Blob, error) {
-	directory, err := blobs.Directory(databaseURI)
+// Create streams source into <database root>/large_blobs and records metadata.
+func Create(ctx context.Context, db *sql.DB, databaseRoot, meta, extension string, source io.Reader) (Blob, error) {
+	directory, err := blobs.Directory(databaseRoot)
 	if err != nil {
 		return Blob{}, err
 	}
@@ -67,8 +67,8 @@ func Create(ctx context.Context, db *sql.DB, databaseURI, meta, extension string
 }
 
 // Get opens a large blob for streaming. The caller must close Reader.
-func Get(ctx context.Context, db *sql.DB, databaseURI, key string) (Blob, error) {
-	directory, err := blobs.Directory(databaseURI)
+func Get(ctx context.Context, db *sql.DB, databaseRoot, key string) (Blob, error) {
+	directory, err := blobs.Directory(databaseRoot)
 	if err != nil {
 		return Blob{}, err
 	}
@@ -88,8 +88,8 @@ func Get(ctx context.Context, db *sql.DB, databaseURI, key string) (Blob, error)
 }
 
 // Delete removes the metadata and then the associated large blob file.
-func Delete(ctx context.Context, db *sql.DB, databaseURI, key string) error {
-	directory, err := blobs.Directory(databaseURI)
+func Delete(ctx context.Context, db *sql.DB, databaseRoot, key string) error {
+	directory, err := blobs.Directory(databaseRoot)
 	if err != nil {
 		return err
 	}

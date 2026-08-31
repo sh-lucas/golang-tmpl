@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -31,12 +32,12 @@ func main() {
 }
 
 func run() error {
-	databaseURI := env("DATABASE_URI", "data/app.db")
+	databaseRoot := env("DATABASE_ROOT", "data")
 	jwtSecret := env("JWT_SECRET", "")
 	if jwtSecret == "" {
 		return errors.New("JWT_SECRET must be configured")
 	}
-	db, err := database.Open(context.Background(), databaseURI)
+	db, err := database.Open(context.Background(), filepath.Join(databaseRoot, "sqlite.db"))
 	if err != nil {
 		return err
 	}

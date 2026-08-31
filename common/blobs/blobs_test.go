@@ -62,16 +62,16 @@ func TestSmallBlobRejectsOversizeStream(t *testing.T) {
 
 func TestLargeBlobLifecycleStreamsFile(t *testing.T) {
 	ctx := context.Background()
-	db, databaseURI := openDB(t)
-	created, err := large.Create(ctx, db, databaseURI, "application/octet-stream", "bin", bytes.NewReader([]byte("large-data")))
+	db, databaseRoot := openDB(t)
+	created, err := large.Create(ctx, db, databaseRoot, "application/octet-stream", "bin", bytes.NewReader([]byte("large-data")))
 	if err != nil {
 		t.Fatal(err)
 	}
-	path := filepath.Join(filepath.Dir(databaseURI), "blobs", created.Key)
+	path := filepath.Join(databaseRoot, "large_blobs", created.Key)
 	if _, err := os.Stat(path); err != nil {
 		t.Fatalf("large file not created: %v", err)
 	}
-	got, err := large.Get(ctx, db, databaseURI, created.Key)
+	got, err := large.Get(ctx, db, databaseRoot, created.Key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func TestLargeBlobLifecycleStreamsFile(t *testing.T) {
 	if err != nil || closeErr != nil || string(data) != "large-data" {
 		t.Fatalf("large data=%q read=%v close=%v", data, err, closeErr)
 	}
-	if err := large.Delete(ctx, db, databaseURI, created.Key); err != nil {
+	if err := large.Delete(ctx, db, databaseRoot, created.Key); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
@@ -100,13 +100,13 @@ func TestCopyToTempChecksLimitWhileStreaming(t *testing.T) {
 
 func openDB(t *testing.T) (*sql.DB, string) {
 	t.Helper()
-	path := filepath.Join(t.TempDir(), "app.db")
-	db, err := database.Open(context.Background(), path)
+	root := t.TempDir()
+	db, err := database.Open(context.Background(), filepath.Join(root, "sqlite.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = db.Close() })
-	return db, path
+	return db, root
 }
 
 type zeroReader struct{ remaining int64 }

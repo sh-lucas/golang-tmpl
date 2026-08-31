@@ -62,13 +62,12 @@ func CopyToTemp(directory string, source io.Reader, limit int64) (string, error)
 	return path, nil
 }
 
-// Directory returns the directory for large blob files next to databaseURI.
-func Directory(databaseURI string) (string, error) {
-	path, _, _ := strings.Cut(databaseURI, "?")
-	if path == "" || strings.Contains(path, ":memory:") || strings.HasPrefix(path, "file:") {
-		return "", errors.New("large blobs require a filesystem database path")
+// Directory returns the directory for large blob files below databaseRoot.
+func Directory(databaseRoot string) (string, error) {
+	if databaseRoot == "" {
+		return "", errors.New("large blobs require a filesystem database root")
 	}
-	return filepath.Join(filepath.Dir(path), "blobs"), nil
+	return filepath.Join(databaseRoot, "large_blobs"), nil
 }
 
 // Path returns the safe on-disk location for a generated blob key.

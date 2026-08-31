@@ -2,6 +2,7 @@ package database_test
 
 import (
 	"context"
+	"database/sql"
 	"path/filepath"
 	"testing"
 
@@ -19,10 +20,29 @@ func TestOpenMigratesDatabase(t *testing.T) {
 	if err := db.QueryRow("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'admins'").Scan(&table); err != nil {
 		t.Fatal(err)
 	}
-	for _, pragma := range []string{"cache_size", "mmap_size", "synchronous"} {
-		var value string
-		if err := db.QueryRow("PRAGMA " + pragma).Scan(&value); err != nil || value == "" {
-			t.Fatalf("pragma %s: %v", pragma, err)
-		}
+	assertPragma(t, db, "cache_size", -65536)
+	assertPragmaAtLeast(t, db, "mmap_size", 128<<20)
+	assertPragma(t, db, "synchronous", 1)
+}
+
+func assertPragma(t *testing.T, db interface{ QueryRow(string, ...any) *sql.Row }, name string, want int64) {
+	t.Helper()
+	var got int64
+	if err := db.QueryRow("PRAGMA " + name).Scan(&got); err != nil {
+		t.Fatalf("pragma %s: %v", name, err)
+	}
+	if got != want {
+		t.Fatalf("pragma %s = %d, want %d", name, got, want)
+	}
+}
+
+func assertPragmaAtLeast(t *testing.T, db interface{ QueryRow(string, ...any) *sql.Row }, name string, minimum int64) {
+	t.Helper()
+	var got int64
+	if err := db.QueryRow("PRAGMA " + name).Scan(&got); err != nil {
+		t.Fatalf("pragma %s: %v", name, err)
+	}
+	if got < minimum {
+		t.Fatalf("pragma %s = %d, want at least %d", name, got, minimum)
 	}
 }

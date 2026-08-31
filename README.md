@@ -22,7 +22,7 @@ Depois execute:
 just run
 ```
 
-O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para configurar `DATABASE_URI`, `SERVER_PORT` e o `JWT_SECRET` obrigatório. Ao executar receitas do Just, o `.env` é carregado automaticamente; executando o binário diretamente, a aplicação lê apenas variáveis exportadas pelo ambiente.
+O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para configurar `DATABASE_ROOT`, `SERVER_PORT` e o `JWT_SECRET` obrigatório. `DATABASE_ROOT` contém o SQLite principal em `sqlite.db` e os blobs grandes em `large_blobs/`. Ao executar receitas do Just, o `.env` é carregado automaticamente; executando o binário diretamente, a aplicação lê apenas variáveis exportadas pelo ambiente.
 
 ## Autenticação de exemplo
 
