@@ -10,7 +10,7 @@
 
 - Para cada change request, delegue o ciclo de investigar, entender, implementar, testar e corrigir para exatamente um subagente pequeno. `gpt-5.6-luna (high)` e Claude Sonnet 5 são apenas exemplos adequados; evite agentes de geração anterior.
 - O agente principal (quando 5.6 Terra/Sol, ou Opus/Sonnet) para revisar o resultado, conferir escopo e entregar. Ele não deve repetir o ciclo de pesquisa e correções do subagente.
-- Após a revisão, o agente principal executa `make check` apenas uma vez como validação final. O subagente absorve as demais tool calls e tentativas necessárias para chegar a esse ponto.
+- Após a revisão, o agente principal executa `just check` apenas uma vez como validação final. O subagente absorve as demais tool calls e tentativas necessárias para chegar a esse ponto.
 
 ## Arquitetura
 
@@ -30,6 +30,6 @@
 
 ## Validação
 
-- `make check` é a fonte única de validação: ele executa `sqlc generate`, gera o Swagger, aplica `gofmt`, executa `go vet ./...` e `go test ./...`.
-- Antes de entregar, o subagente usa esse alvo durante as iterações; o agente principal executa `make check` somente uma vez como validação final. Não é necessário executar `go build`.
+- `just check` é a fonte única de validação: ele executa `sqlc generate`, gera o Swagger, aplica `gofmt`, executa `go vet ./...` e `go test ./...`.
+- Antes de entregar, o subagente usa esse alvo durante as iterações; o agente principal executa `just check` somente uma vez como validação final. Não é necessário executar `go build`.
 - Informe exatamente as verificações executadas e seus resultados.

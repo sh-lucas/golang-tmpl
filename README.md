@@ -6,6 +6,8 @@ Exemplo pequeno de API em Go 1.27 usando `net/http`, `encoding/json/v2`, SQLite 
 
 Instale as ferramentas de desenvolvimento:
 
+Instale também o [Just](https://just.systems/) conforme o método disponível no seu sistema.
+
 ```sh
 go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 go install github.com/air-verse/air@v1.63.0
@@ -17,10 +19,10 @@ lefthook install
 Depois execute:
 
 ```sh
-make run
+just run
 ```
 
-O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para configurar `DATABASE_URI`, `SERVER_PORT` e o `JWT_SECRET` obrigatório. A aplicação lê variáveis exportadas pelo ambiente; ela não carrega `.env` automaticamente.
+O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para configurar `DATABASE_URI`, `SERVER_PORT` e o `JWT_SECRET` obrigatório. Ao executar receitas do Just, o `.env` é carregado automaticamente; executando o binário diretamente, a aplicação lê apenas variáveis exportadas pelo ambiente.
 
 ## Autenticação de exemplo
 
@@ -33,4 +35,4 @@ Criação e login recebem `{"email":"admin@example.com","password":"correct hors
 
 Cada domínio vive em `internal/features/<feature>`. O SQL-fonte fica junto da feature, é enumerado no `sqlc.yaml` e gera o pacote compartilhado `queries/`. As migrations são aplicadas automaticamente.
 
-O pre-commit formata os arquivos staged, regenera sqlc e Swagger, atualiza módulos e adiciona os resultados ao próprio commit com `stage_fixed`. Depois executa vet, testes e build.
+O pre-commit formata os arquivos staged, regenera sqlc e Swagger, atualiza módulos e adiciona os resultados ao próprio commit com `stage_fixed`. Depois executa vet, testes e build através de `just check`.
