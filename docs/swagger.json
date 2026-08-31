@@ -144,6 +144,31 @@
                 }
             }
         },
+        "/health": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get application health and process metrics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/health.Response"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/health.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/libsql": {
             "post": {
                 "security": [
@@ -197,6 +222,65 @@
                 "password": {
                     "type": "string",
                     "minLength": 12
+                }
+            }
+        },
+        "health.Database": {
+            "type": "object",
+            "properties": {
+                "size_bytes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "health.PSI": {
+            "type": "object",
+            "properties": {
+                "cpu_avg10_percent": {
+                    "type": "number"
+                },
+                "io_avg10_percent": {
+                    "type": "number"
+                },
+                "memory_avg10_percent": {
+                    "type": "number"
+                }
+            }
+        },
+        "health.Process": {
+            "type": "object",
+            "properties": {
+                "cpu_usage_percent": {
+                    "type": "number"
+                },
+                "heap_bytes": {
+                    "type": "integer"
+                },
+                "memory_rss_bytes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "health.Response": {
+            "type": "object",
+            "properties": {
+                "database": {
+                    "$ref": "#/definitions/health.Database"
+                },
+                "google_latency_ms": {
+                    "type": "number"
+                },
+                "goroutines": {
+                    "type": "integer"
+                },
+                "process": {
+                    "$ref": "#/definitions/health.Process"
+                },
+                "psi": {
+                    "$ref": "#/definitions/health.PSI"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },

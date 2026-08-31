@@ -46,3 +46,12 @@ func Open(ctx context.Context, uri string) (*sql.DB, error) {
 	}
 	return db, nil
 }
+
+// Checkpoint writes all WAL pages into the main database file and truncates the
+// WAL file. It must run after application-level database users have stopped.
+func Checkpoint(ctx context.Context, db *sql.DB) error {
+	if _, err := db.ExecContext(ctx, "PRAGMA wal_checkpoint(TRUNCATE)"); err != nil {
+		return fmt.Errorf("checkpoint database WAL: %w", err)
+	}
+	return nil
+}

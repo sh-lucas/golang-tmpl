@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"database/sql"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -25,6 +26,31 @@ func TestOpenMigratesDatabase(t *testing.T) {
 	assertPragma(t, db, "synchronous", 1)
 	if got := db.Stats().MaxOpenConnections; got != 15 {
 		t.Fatalf("maximum open connections = %d, want 15", got)
+	}
+}
+
+func TestCheckpointTruncatesWAL(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "test.db")
+	db, err := database.Open(context.Background(), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec("CREATE TABLE checkpoint_test (value TEXT)"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec("INSERT INTO checkpoint_test (value) VALUES ('written to wal')"); err != nil {
+		t.Fatal(err)
+	}
+	if err := database.Checkpoint(context.Background(), db); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+	for _, suffix := range []string{"-wal", "-shm"} {
+		if _, err := os.Stat(path + suffix); !os.IsNotExist(err) {
+			t.Fatalf("database sidecar %s remains after close: %v", suffix, err)
+		}
 	}
 }
 
