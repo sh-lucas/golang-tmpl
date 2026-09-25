@@ -19,3 +19,4 @@ data/*.db-wal
 # Auto-generated
 schema.sql
 tmp/
+/book

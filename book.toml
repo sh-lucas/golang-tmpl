@@ -1,0 +1,13 @@
+[book]
+title = "Golang Template"
+description = "Template project for Go services."
+authors = ["sh-lucas"]
+src = "specs"
+language = "en"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+default-theme = "rust"

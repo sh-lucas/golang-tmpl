@@ -7,6 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
+RUN mkdir -p /src/book
 RUN go test ./...
 
 ARG CGO_ENABLED=0
@@ -16,6 +17,7 @@ RUN test "$CGO_ENABLED" = "0" && CGO_ENABLED="$CGO_ENABLED" GOOS=linux go build 
 FROM scratch
 
 COPY --from=builder /backend /backend
+COPY --from=builder /src/book /book
 
 VOLUME ["/data"]
 
@@ -23,6 +25,7 @@ ENV DATABASE_ROOT=/data
 ENV SERVER_PORT=3000
 ENV JWT_SECRET=""
 ENV DATABASE_ACCESS_KEY=""
+ENV BOOK_ROOT=/book
 
 EXPOSE 3000
 
