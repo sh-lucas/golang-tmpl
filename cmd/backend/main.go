@@ -66,12 +66,10 @@ func run() (runErr error) {
 	}()
 	health.RegisterRoutes(mux, health.Options{DatabasePath: filepath.Join(databaseRoot, "sqlite.db")})
 	docsRoot := env("BOOK_ROOT", "book")
-	if entries, err := os.ReadDir(docsRoot); err == nil && len(entries) > 0 {
-		mux.Handle("GET /docs/", http.StripPrefix("/docs/", http.FileServer(http.Dir(docsRoot))))
-		mux.HandleFunc("GET /docs", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/docs/", http.StatusPermanentRedirect)
-		})
-	}
+	mux.Handle("GET /docs/", http.StripPrefix("/docs/", http.FileServer(http.Dir(docsRoot))))
+	mux.HandleFunc("GET /docs", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/docs/", http.StatusPermanentRedirect)
+	})
 	mux.HandleFunc("GET /swagger", redirectSwagger)
 	mux.HandleFunc("GET /swagger.json", serveSwagger)
 
