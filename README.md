@@ -34,6 +34,8 @@ O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para con
 
 Criação e login recebem `{"email":"admin@example.com","password":"correct horse battery staple"}`.
 
-Cada domínio vive em `internal/features/<feature>`. O SQL-fonte fica junto da feature, é enumerado no `sqlc.yaml` e gera o pacote compartilhado `queries/`. As migrations são aplicadas automaticamente.
+Cada domínio vive em `internal/features/<feature>`. O SQL-fonte fica junto da feature e gera, pelo `sqlc.yaml`, o pacote `<feature>/internal/queries`, que só a própria feature consegue importar. Recomendamos que cada tabela tenha uma feature dona, a única que escreve nela; isso é convenção, porque outro `.sql` ainda pode escrever na tabela. Crie features com `just mkhandler <nome>`. As migrations são aplicadas automaticamente.
 
-O pre-commit formata os arquivos staged, regenera sqlc e Swagger, atualiza módulos e adiciona os resultados ao próprio commit com `stage_fixed`. Depois executa vet, testes e build através de `just check`.
+O teste `internal/architecture` falha se uma feature importar outra ou se `common/` importar `internal/`. A CI executa `just check` e falha se o código gerado ou a formatação não estiverem commitados.
+
+O pre-commit formata os arquivos staged, regenera sqlc e Swagger, atualiza módulos e adiciona os resultados ao próprio commit com `stage_fixed`. Depois executa build, vet e testes através de `just check`.

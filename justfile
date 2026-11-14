@@ -8,7 +8,8 @@ mkhandler name:
 
 check:
     sqlc generate
-    swag init -q -g main.go -d cmd/backend,internal/features/admins,internal/features/libsql,internal/features/health,queries -o docs --parseInternal --parseGoList=false --outputTypes json,yaml
-    gofmt -w $(rg --files -g '*.go')
+    swag init -q -g cmd/backend/main.go -d ./ -o docs --parseInternal --parseGoList=false --outputTypes json,yaml
+    gofmt -w .
+    go build ./...
     go vet ./...
     go test -count=1 ./...

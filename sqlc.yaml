@@ -1,16 +1,16 @@
 version: "2"
+# One generated package per owner, under its internal/ so only the owner can write its tables.
 sql:
   - engine: "sqlite"
-    queries:
-      - "internal/features/admins/admins_queries.sql"
-      - "common/queue/queue_queries.sql"
-      - "common/blobs/blobs_queries.sql"
-      # mkhandler:queries
+    queries: "internal/features/admins/admins_queries.sql"
     schema: "migrations/"
-    gen:
-      go:
-        package: "queries"
-        out: "queries"
-        sql_package: "database/sql"
-        emit_empty_slices: true
-        emit_json_tags: true
+    gen: { go: { package: "queries", out: "internal/features/admins/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true } }
+  - engine: "sqlite"
+    queries: "common/queue/queue_queries.sql"
+    schema: "migrations/"
+    gen: { go: { package: "queries", out: "common/queue/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true } }
+  - engine: "sqlite"
+    queries: "common/blobs/blobs_queries.sql"
+    schema: "migrations/"
+    gen: { go: { package: "queries", out: "common/blobs/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true } }
+  # mkhandler:queries

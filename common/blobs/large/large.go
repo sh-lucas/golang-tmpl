@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/rox-projects/golang-tmpl/common/blobs"
-	"github.com/rox-projects/golang-tmpl/queries"
+	"github.com/rox-projects/golang-tmpl/common/blobs/internal/queries"
 )
 
 type Blob struct {

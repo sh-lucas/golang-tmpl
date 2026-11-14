@@ -20,5 +20,15 @@ jobs:
         with:
           go-version-file: go.mod
           cache-dependency-path: go.sum
-      - name: Run Go tests
-        run: go test ./...
+      - uses: sqlc-dev/setup-sqlc@v4
+        with:
+          sqlc-version: "1.31.1"
+      - uses: extractions/setup-just@v3
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag@v1.16.4
+      - name: Check
+        run: just check
+      - name: Generated code and formatting are committed
+        run: |
+          git add -A
+          git diff --cached --exit-code

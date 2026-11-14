@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/rox-projects/golang-tmpl/common/mug"
-	"github.com/rox-projects/golang-tmpl/queries"
+	"github.com/rox-projects/golang-tmpl/internal/features/admins/internal/queries"
 )
 
 type contextKey struct{}

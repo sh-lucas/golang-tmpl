@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rox-projects/golang-tmpl/queries"
+	"github.com/rox-projects/golang-tmpl/common/queue/internal/queries"
 )
 
 const (
@@ -89,8 +89,11 @@ type Queue[T any] struct {
 	queries *queries.Queries
 }
 
+// DBTX is satisfied by *sql.DB, *sql.Conn and *sql.Tx.
+type DBTX = queries.DBTX
+
 // New creates a typed queue backed by db.
-func New[T any](db queries.DBTX) *Queue[T] {
+func New[T any](db DBTX) *Queue[T] {
 	return &Queue[T]{queries: queries.New(db)}
 }
 
@@ -134,7 +137,7 @@ type Iterator[T any] struct {
 }
 
 // NewIterator creates an iterator directly from an injectable DBTX.
-func NewIterator[T any](ctx context.Context, db queries.DBTX, reference string, visibilitySeconds int) *Iterator[T] {
+func NewIterator[T any](ctx context.Context, db DBTX, reference string, visibilitySeconds int) *Iterator[T] {
 	return newIterator(ctx, New[T](db), reference, visibilitySeconds)
 }
 
@@ -247,11 +250,11 @@ func (q *Queue[T]) item(ctx context.Context, row queries.Queue) Item[T] {
 }
 
 // Enqueue serializes payload as JSON and appends it to reference using db.
-func Enqueue[T any](ctx context.Context, db queries.DBTX, reference string, payload T) (Item[T], error) {
+func Enqueue[T any](ctx context.Context, db DBTX, reference string, payload T) (Item[T], error) {
 	return New[T](db).Enqueue(ctx, reference, payload)
 }
 
 // Iterate creates an iterator directly from db.
-func Iterate[T any](ctx context.Context, db queries.DBTX, reference string, visibilitySeconds int) *Iterator[T] {
+func Iterate[T any](ctx context.Context, db DBTX, reference string, visibilitySeconds int) *Iterator[T] {
 	return NewIterator[T](ctx, db, reference, visibilitySeconds)
 }

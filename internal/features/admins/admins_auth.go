@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rox-projects/golang-tmpl/queries"
+	"github.com/rox-projects/golang-tmpl/internal/features/admins/internal/queries"
 )
 
 const sessionDuration = 24 * time.Hour

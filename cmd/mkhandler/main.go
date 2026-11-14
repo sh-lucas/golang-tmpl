@@ -14,7 +14,7 @@ const (
 	modulePath        = "github.com/rox-projects/golang-tmpl"
 	importsMarker     = "\t// mkhandler:imports"
 	routesMarker      = "\t// mkhandler:routes"
-	queriesMarker     = "      # mkhandler:queries"
+	queriesMarker     = "  # mkhandler:queries"
 	usage             = "usage: go run ./cmd/mkhandler <camelCaseName>"
 	featureFileMode   = 0o640
 	directoryFileMode = 0o750
@@ -86,8 +86,7 @@ func create(name string) error {
 	if err != nil {
 		return fmt.Errorf("read sqlc configuration: %w", err)
 	}
-	queryPath := "internal/features/" + name + "/" + name + "_queries.sql"
-	sqlcSource, err = addBeforeMarker(sqlcSource, queriesMarker, "      - \""+queryPath+"\"\n")
+	sqlcSource, err = addBeforeMarker(sqlcSource, queriesMarker, sqlcBlock(name))
 	if err != nil {
 		return fmt.Errorf("add feature query file: %w", err)
 	}
@@ -98,7 +97,7 @@ func create(name string) error {
 	if err := os.WriteFile(filepath.Join(featureDir, name+".go"), []byte(featureSource(name)), featureFileMode); err != nil {
 		return fmt.Errorf("write feature: %w", err)
 	}
-	if err := os.WriteFile(filepath.Join(featureDir, name+"_queries.sql"), []byte("-- Add "+name+" queries here.\n"), featureFileMode); err != nil {
+	if err := os.WriteFile(filepath.Join(featureDir, name+"_queries.sql"), []byte("-- name: GetExample :one\nSELECT 'ok' AS status;\n"), featureFileMode); err != nil {
 		return fmt.Errorf("write feature queries: %w", err)
 	}
 	if err := os.WriteFile(mainPath, mainSource, featureFileMode); err != nil {
@@ -117,29 +116,50 @@ func addBeforeMarker(source []byte, marker, addition string) ([]byte, error) {
 	return []byte(strings.Replace(string(source), marker, addition+marker, 1)), nil
 }
 
+func sqlcBlock(name string) string {
+	dir := "internal/features/" + name
+	return `  - engine: "sqlite"
+    queries: "` + dir + "/" + name + `_queries.sql"
+    schema: "migrations/"
+    gen: { go: { package: "queries", out: "` + dir + `/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true } }
+`
+}
+
 func featureSource(name string) string {
 	return fmt.Sprintf(`package %[1]s
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 
 	"%[2]s/common/mug"
+	"%[2]s/internal/features/%[1]s/internal/queries"
 )
 
 type handler struct {
-	db *sql.DB
+	queries *queries.Queries
 }
 
 func RegisterRoutes(mux *http.ServeMux, db *sql.DB) {
-	h := handler{db: db}
-	mux.HandleFunc("GET /%[1]s/example", func(w http.ResponseWriter, _ *http.Request) {
-		h.GetExample().WriteHTTP(w)
+	h := handler{queries: queries.New(db)}
+	mux.HandleFunc("GET /%[1]s/example", func(w http.ResponseWriter, r *http.Request) {
+		h.GetExample(r.Context()).WriteHTTP(w)
 	})
 }
 
-func (h handler) GetExample() mug.Response {
-	return mug.OK(map[string]string{"status": "ok"})
+// GetExample godoc
+// @Summary Example %[1]s endpoint
+// @Tags %[1]s
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /%[1]s/example [get]
+func (h handler) GetExample(ctx context.Context) mug.Response {
+	status, err := h.queries.GetExample(ctx)
+	if err != nil {
+		return mug.InternalServerError("internal server error")
+	}
+	return mug.OK(map[string]string{"status": status})
 }
 `, name, modulePath)
 }

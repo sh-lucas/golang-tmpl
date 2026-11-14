@@ -17,7 +17,6 @@ import (
 	"github.com/rox-projects/golang-tmpl/internal/features/admins"
 	"github.com/rox-projects/golang-tmpl/internal/features/health"
 	"github.com/rox-projects/golang-tmpl/internal/features/libsql"
-	"github.com/rox-projects/golang-tmpl/queries"
 	// mkhandler:imports
 )
 
@@ -50,7 +49,7 @@ func run() (runErr error) {
 		return err
 	}
 	mux := http.NewServeMux()
-	admins.RegisterRoutes(mux, queries.New(db), jwtSecret)
+	admins.RegisterRoutes(mux, db, jwtSecret)
 	libsqlHandler := libsql.RegisterRoutes(mux, db, accessKey)
 	// mkhandler:routes
 	defer func() {

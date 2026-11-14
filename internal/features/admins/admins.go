@@ -2,12 +2,13 @@ package admins
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/rox-projects/golang-tmpl/common/mug"
-	"github.com/rox-projects/golang-tmpl/queries"
+	"github.com/rox-projects/golang-tmpl/internal/features/admins/internal/queries"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -18,11 +19,11 @@ type handler struct {
 
 type credentials struct {
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=12"`
+	Password string `json:"password" validate:"required,min=8"`
 }
 
-func RegisterRoutes(mux *http.ServeMux, q *queries.Queries, jwtSecret string) {
-	h := handler{queries: q, jwtSecret: jwtSecret}
+func RegisterRoutes(mux *http.ServeMux, db *sql.DB, jwtSecret string) {
+	h := handler{queries: queries.New(db), jwtSecret: jwtSecret}
 	mux.Handle("POST /admins", h.requireAdminAfterBootstrap(mug.Route(h.create)))
 	mux.Handle("POST /auth/login", mug.Route(h.login))
 	mux.Handle("GET /admins/me", h.requireAdmin(mug.Route(h.me)))
