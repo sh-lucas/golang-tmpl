@@ -31,11 +31,14 @@ O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para con
 - `GET /admins/me`: retorna o admin autenticado.
 - `GET /health`: verifica o processo HTTP.
 - `/libsql/`: expõe o mesmo SQLite pelo protocolo HTTP do libSQL. Use o token configurado em `DATABASE_ACCESS_KEY` como Bearer token; no DBeaver, informe-o como senha e deixe o usuário vazio, com a URL `http://localhost:3000/libsql`.
+- `GET /libsql/snapshot` baixa uma cópia consistente do banco; `PUT /libsql/snapshot` restaura um arquivo enviado, depois de validá-lo e guardar o banco atual em `DATABASE_ROOT/backups/` (mesmo Bearer token). `large_blobs/` não entra.
 
 Criação e login recebem `{"email":"admin@example.com","password":"correct horse battery staple"}`.
 
 Cada domínio vive em `internal/features/<feature>`. O SQL-fonte fica junto da feature e gera, pelo `sqlc.yaml`, o pacote `<feature>/internal/queries`, que só a própria feature consegue importar. Recomendamos que cada tabela tenha uma feature dona, a única que escreve nela; isso é convenção, porque outro `.sql` ainda pode escrever na tabela. Crie features com `just mkhandler <nome>`. As migrations são aplicadas automaticamente.
 
 O teste `internal/architecture` falha se uma feature importar outra ou se `common/` importar `internal/`. A CI executa `just check` e falha se o código gerado ou a formatação não estiverem commitados.
+
+Backup contínuo com [Litestream](https://litestream.io) é opcional: descomente o bloco no fim do `Dockerfile` e defina `LITESTREAM_REPLICA_URL`, `LITESTREAM_ACCESS_KEY_ID` e `LITESTREAM_SECRET_ACCESS_KEY` no runtime. Com o volume vazio, o banco é restaurado automaticamente da réplica.
 
 O pre-commit formata os arquivos staged, regenera sqlc e Swagger, atualiza módulos e adiciona os resultados ao próprio commit com `stage_fixed`. Depois executa build, vet e testes através de `just check`.

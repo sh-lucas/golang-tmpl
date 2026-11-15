@@ -29,7 +29,10 @@ func TestOpenMigratesDatabase(t *testing.T) {
 	}
 }
 
-func TestCheckpointTruncatesWAL(t *testing.T) {
+// Closing the last connection checkpoints the WAL into the database file and
+// removes the sidecars, so shutdown needs no explicit checkpoint. An explicit
+// TRUNCATE checkpoint would also race Litestream, which must own the WAL.
+func TestCloseCheckpointsAndRemovesSidecars(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "test.db")
 	db, err := database.Open(context.Background(), path)
 	if err != nil {
@@ -41,9 +44,6 @@ func TestCheckpointTruncatesWAL(t *testing.T) {
 	if _, err := db.Exec("INSERT INTO checkpoint_test (value) VALUES ('written to wal')"); err != nil {
 		t.Fatal(err)
 	}
-	if err := database.Checkpoint(context.Background(), db); err != nil {
-		t.Fatal(err)
-	}
 	if err := db.Close(); err != nil {
 		t.Fatal(err)
 	}
@@ -51,6 +51,15 @@ func TestCheckpointTruncatesWAL(t *testing.T) {
 		if _, err := os.Stat(path + suffix); !os.IsNotExist(err) {
 			t.Fatalf("database sidecar %s remains after close: %v", suffix, err)
 		}
+	}
+	reopened, err := database.Open(context.Background(), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer reopened.Close()
+	var value string
+	if err := reopened.QueryRow("SELECT value FROM checkpoint_test").Scan(&value); err != nil || value != "written to wal" {
+		t.Fatalf("value after reopen = %q, %v", value, err)
 	}
 }
 

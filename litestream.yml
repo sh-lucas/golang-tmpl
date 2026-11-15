@@ -1,0 +1,10 @@
+# Litestream configuration for the optional block in the Dockerfile.
+# Credentials are read by Litestream itself from LITESTREAM_ACCESS_KEY_ID and
+# LITESTREAM_SECRET_ACCESS_KEY; never put them in this file or in the image.
+dbs:
+  - path: ${DATABASE_ROOT}/sqlite.db
+    # On a fresh volume, restore from the replica before the app starts.
+    # Only "no backup yet" starts empty; any other replica error aborts.
+    restore-if-db-not-exists: true
+    replica:
+      url: ${LITESTREAM_REPLICA_URL}

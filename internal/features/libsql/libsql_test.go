@@ -20,7 +20,7 @@ func TestRouteRequiresBearerAuthenticationAndExecutesAgainstApplicationDatabase(
 	t.Cleanup(func() { _ = db.Close() })
 
 	mux := http.NewServeMux()
-	handler := libsql.RegisterRoutes(mux, db, "test-access-key")
+	handler := libsql.RegisterRoutes(mux, db, "test-access-key", t.TempDir())
 	t.Cleanup(func() { _ = handler.Close() })
 
 	unauthenticated := httptest.NewRecorder()

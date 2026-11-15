@@ -1,0 +1,17 @@
+# Arquitetura
+
+- Go 1.27, generics em métodos, prefira `net/http` e `encoding/json/v2`; evite instalar dependências desnecessárias. SQLite remove overhead e latência de rede e facilita testes de integração.
+- Cada feature começa em `<feature>.go`: ele declara as rotas, mantém os comentários OpenAPI e contém as funções principais do endpoint. O `handler` permanece explícito e executa cada operação; os demais arquivos usam esse handler para responsabilidades específicas, como autenticação.
+- Nomeie arquivos complementares como `<feature>_queries.sql`, `<feature>_test.go` e `<feature>_<responsabilidade>.go`.
+- Crie features com `just mkhandler <nome>`. O SQL-fonte fica junto da feature e gera `<feature>/internal/queries`, importável só pela própria feature. Escreva o SQL, inclusive transformações de dados, em vez de queries cruas em Go.
+- Serviços e integrações externas ficam em `<feature>/internal/<repositório>/`; as queries geradas (`internal/queries`) são um desses repositórios.
+- Recomendação: cada tabela tem uma feature dona, a única que escreve nela. O `internal/` só impede importar as queries de outro dono; nada impede outro `.sql` de escrever na tabela, então respeite isso por convenção.
+- Uma feature não importa outra, e `common/` não importa `internal/` (`internal/architecture` garante). Código compartilhado vai para `common/`. Para relaxar uma regra, altere esse teste num PR próprio.
+- Prefira funções diretas, dependências explícitas e stdlib. Não crie abstrações sem necessidade.
+
+## Migrations
+
+- Ficam em `migrations/NNN_snake_case.sql`, numeradas em sequência sem buracos, e rodam automaticamente na abertura do banco, cada uma na própria transação.
+- Não use `BEGIN`/`COMMIT`/`PRAGMA`/`VACUUM` dentro delas; `tests/migrations_test.go` barra isso.
+- Nunca edite uma migration já aplicada em produção; crie uma nova.
+- Migrações com seeds (*dirty migrations*) são permitidas, e recomendadas para testar persistência entre migrations.

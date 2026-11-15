@@ -5,7 +5,7 @@ definitions:
       email:
         type: string
       password:
-        minLength: 12
+        minLength: 8
         type: string
     required:
     - email
@@ -47,6 +47,14 @@ definitions:
       psi:
         $ref: '#/definitions/health.PSI'
       status:
+        type: string
+    type: object
+  libsql.restoreResponse:
+    properties:
+      backup:
+        description: Backup is the pre-restore copy of the replaced database, relative
+          to DATABASE_ROOT.
+        example: backups/pre-restore-20260101T000000.000Z.db
         type: string
     type: object
   queries.CreateAdminRow:
@@ -201,6 +209,66 @@ paths:
       security:
       - BearerAuth: []
       summary: Execute SQL through libSQL HTTP
+      tags:
+      - libsql
+  /libsql/snapshot:
+    get:
+      description: Streams a self-contained copy of sqlite.db (VACUUM INTO). large_blobs/
+        is not included.
+      produces:
+      - application/vnd.sqlite3
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Download a consistent database snapshot
+      tags:
+      - libsql
+    put:
+      consumes:
+      - application/vnd.sqlite3
+      description: Validates the upload (integrity, foreign keys, known migrations),
+        applies pending migrations to it, saves the current database under backups/
+        and restores the upload atomically. large_blobs/ is not touched.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/libsql.restoreResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "413":
+          description: Request Entity Too Large
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Replace the database with an uploaded snapshot
       tags:
       - libsql
 securityDefinitions:

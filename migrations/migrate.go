@@ -62,3 +62,9 @@ func Run(ctx context.Context, db *sql.DB) error {
 	}
 	return nil
 }
+
+// Known reports whether version names a migration embedded in this binary.
+func Known(version string) bool {
+	info, err := fs.Stat(files, version)
+	return err == nil && !info.IsDir() && strings.HasSuffix(version, ".sql")
+}

@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -20,6 +22,10 @@ import (
 	// mkhandler:imports
 )
 
+// Requests get this long to finish after SIGINT/SIGTERM; closing the database
+// afterwards is fast, so shutdown stays below the 10s `docker stop` grace period.
+const drainTimeout = 5 * time.Second
+
 // @title Go HTTP template API
 // @version 1.0
 // @description Minimal Go 1.27 API using net/http, JSON v2, SQLite and sqlc.
@@ -28,6 +34,9 @@ import (
 // @in header
 // @name Authorization
 func main() {
+	// One JSON object per line on stderr: readable by log collectors (Loki,
+	// Docker drivers). log.Printf also goes through this handler.
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
 	if err := run(); err != nil {
 		slog.Error("server stopped", "error", err)
 		os.Exit(1)
@@ -50,15 +59,12 @@ func run() (runErr error) {
 	}
 	mux := http.NewServeMux()
 	admins.RegisterRoutes(mux, db, jwtSecret)
-	libsqlHandler := libsql.RegisterRoutes(mux, db, accessKey)
+	libsqlHandler := libsql.RegisterRoutes(mux, db, accessKey, databaseRoot)
 	// mkhandler:routes
 	defer func() {
 		libsqlHandler.Close()
-		checkpointCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		if err := database.Checkpoint(checkpointCtx, db); err != nil && runErr == nil {
-			runErr = err
-		}
+		// Closing the last connection checkpoints the WAL and removes -wal/-shm.
+		// No explicit checkpoint: under Litestream it must own the WAL.
 		if err := db.Close(); err != nil && runErr == nil {
 			runErr = err
 		}
@@ -81,24 +87,53 @@ func run() (runErr error) {
 		IdleTimeout:       60 * time.Second,
 		MaxHeaderBytes:    1 << 20,
 	}
+	// Connections that have not sent a byte yet (browser preconnects, unused
+	// client dials). net/http waits 5s for them on Shutdown, so we close them.
+	var unused sync.Map
+	server.ConnState = func(conn net.Conn, state http.ConnState) {
+		if state == http.StateNew {
+			unused.Store(conn, nil)
+		} else {
+			unused.Delete(conn)
+		}
+	}
 
+	listener, err := net.Listen("tcp", server.Addr)
+	if err != nil {
+		return err
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	go func() {
-		<-ctx.Done()
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		if err := server.Shutdown(shutdownCtx); err != nil {
-			slog.Error("graceful shutdown", "error", err)
-		}
-	}()
+	served := make(chan error, 1)
+	go func() { served <- server.Serve(listener) }()
+	slog.Info("listening", "address", listener.Addr().String())
 
-	slog.Info("listening", "address", server.Addr)
-	runErr = server.ListenAndServe()
-	if errors.Is(runErr, http.ErrServerClosed) {
-		return nil
+	select {
+	case err := <-served:
+		return err
+	case <-ctx.Done():
 	}
-	return runErr
+	// Restore default signal handling: a second Ctrl+C/SIGTERM kills immediately.
+	stop()
+	slog.Info("shutting down", "drain_timeout", drainTimeout.String())
+	drainCtx, cancel := context.WithTimeout(context.Background(), drainTimeout)
+	defer cancel()
+	drained := make(chan error, 1)
+	go func() { drained <- server.Shutdown(drainCtx) }()
+	// Serve returns once the listener is closed: no connection is accepted after this.
+	if err := <-served; !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+	unused.Range(func(conn, _ any) bool {
+		_ = conn.(net.Conn).Close()
+		return true
+	})
+	if err := <-drained; err != nil {
+		slog.Warn("requests still running after drain timeout; closing them", "error", err)
+		_ = server.Close()
+	}
+	// The deferred cleanup closes libSQL sessions and the database.
+	return nil
 }
 
 func redirectSwagger(w http.ResponseWriter, request *http.Request) {

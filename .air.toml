@@ -16,7 +16,8 @@ tmp_dir = "tmp"
   include_dir = []
   include_ext = ["go", "sql", "yaml"]
   include_file = []
-  kill_delay = "2s"
+  # Above the app shutdown budget (8s), so Air never SIGKILLs a clean shutdown.
+  kill_delay = "10s"
   log = "build-errors.log"
   poll = false
   poll_interval = 0
