@@ -28,8 +28,10 @@
 - Implemente somente o necessário para fazê-lo passar; refatore apenas com a suíte verde.
 - Aprofunde o teste cobrindo todas as invariantes importantes antes de dar uma feature como feita.
 - Teste fluxos HTTP completos com `httptest` e SQLite `:memory:` real, executando todas as migrations.
-- Não use mocks de banco. Mantenha testes ao lado da feature e evite casos repetitivos. Testes feature-wide na mesma pasta da feature, testes cross-feature em `tests/`.
+- Não use mocks de banco. Mantenha testes ao lado da feature e evite casos repetitivos.
+- Testes feature-wide na mesma pasta da feature, testes cross-feature em `tests/`.
 - Não se faz teste unitário para CRUD. Teste fluxos completos, incluindo o armazenamento, conflitos, side-effects e consequências em testes longos e profundos.
+- Dirty migrations: migrações com seeds *são* permitidas, e recomendadas para testar persistência entre migrations.
 
 ## Validação
 
