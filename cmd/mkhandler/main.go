@@ -133,7 +133,7 @@ import (
 	"database/sql"
 	"net/http"
 
-	"%[2]s/common/mug"
+	"%[2]s/internal/mug"
 	"%[2]s/internal/features/%[1]s/internal/queries"
 )
 

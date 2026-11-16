@@ -8,8 +8,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/rox-projects/golang-tmpl/common/blobs"
-	"github.com/rox-projects/golang-tmpl/common/blobs/internal/queries"
+	"github.com/rox-projects/golang-tmpl/internal/blobs"
+	"github.com/rox-projects/golang-tmpl/internal/blobs/internal/queries"
 )
 
 type Blob struct {

@@ -15,7 +15,7 @@
 
 Detalhes ficam em `specs/agents/` (fora do mdBook publicado, que fica em `specs/docs/`; o Swagger gerado fica em `specs/swagger/`):
 
-- `specs/agents/architecture.md`: features, SQL/sqlc, `common/`, regras de import. Leia antes de criar ou mover código.
+- `specs/agents/architecture.md`: features, SQL/sqlc, pacotes compartilhados, regras de import. Leia antes de criar ou mover código.
 - `specs/agents/testing.md`: TDD, testes de feature e de `tests/`. Leia antes de escrever testes.
 - `specs/agents/operations.md`: logs, shutdown, snapshot do banco, Litestream, Docker e variáveis de ambiente. Leia antes de mexer em `cmd/backend`, `Dockerfile`, `litestream.yml` ou no ciclo de vida do banco.
 
@@ -23,7 +23,7 @@ Resumo do que não pode esquecer:
 
 - Go 1.27, stdlib primeiro (`net/http`, `encoding/json/v2`), SQLite; sem dependências desnecessárias.
 - Logs com `slog` global (`slog.InfoContext(ctx, "msg", "chave", valor)`); nunca logue segredos, tokens ou bodies.
-- Uma feature não importa outra; `common/` não importa `internal/`.
+- Uma feature não importa outra; pacotes compartilhados em `internal/` (fora de `features/`) não importam `database/`.
 - Testes de fluxo completo com SQLite real e todas as migrations; nada de mocks de banco.
 
 ## Validação

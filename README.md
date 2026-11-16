@@ -37,7 +37,7 @@ Criação e login recebem `{"email":"admin@example.com","password":"correct hors
 
 Cada domínio vive em `internal/features/<feature>`. O SQL-fonte fica junto da feature e gera, pelo `sqlc.yaml`, o pacote `<feature>/internal/queries`, que só a própria feature consegue importar. Recomendamos que cada tabela tenha uma feature dona, a única que escreve nela; isso é convenção, porque outro `.sql` ainda pode escrever na tabela. Crie features com `just mkhandler <nome>`. As migrations ficam em `database/migrations/` e são aplicadas automaticamente; `database/schema.sql` mostra o schema resultante, regenerado pelo `just check`.
 
-O teste `tests/architecture_test.go` falha se uma feature importar outra ou se `common/` importar `internal/` ou `database/`. A CI executa `just check` e falha se o código gerado ou a formatação não estiverem commitados.
+O teste `tests/architecture_test.go` falha se uma feature importar outra ou se um pacote compartilhado de `internal/` (fora de `features/`) importar `database/`. A CI executa `just check` e falha se o código gerado ou a formatação não estiverem commitados.
 
 Backup contínuo com [Litestream](https://litestream.io) é opcional: descomente o bloco no fim do `Dockerfile` e defina `LITESTREAM_REPLICA_URL`, `LITESTREAM_ACCESS_KEY_ID` e `LITESTREAM_SECRET_ACCESS_KEY` no runtime. Com o volume vazio, o banco é restaurado automaticamente da réplica.
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/rox-projects/golang-tmpl/common/mug"
 	"github.com/rox-projects/golang-tmpl/internal/features/admins/internal/queries"
+	"github.com/rox-projects/golang-tmpl/internal/mug"
 )
 
 type contextKey struct{}

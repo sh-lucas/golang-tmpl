@@ -40,8 +40,8 @@ func violation(pkg, imported string, test bool) string {
 	if test && imported == databasePath {
 		return ""
 	}
-	if strings.HasPrefix(pkg, modulePath+"/common/") && (strings.HasPrefix(imported, modulePath+"/internal/") || strings.HasPrefix(imported, databasePath)) {
-		return "common/ is reusable and must not depend on the application; move the shared code into common/ or pass it in as a parameter"
+	if _, inFeature := feature(pkg); !inFeature && strings.HasPrefix(pkg, modulePath+"/internal/") && strings.HasPrefix(imported, databasePath) {
+		return "shared internal/ packages receive the *sql.DB as a parameter instead of opening the application database"
 	}
 	if target, ok := feature(imported); ok {
 		if own, inFeature := feature(pkg); inFeature && own == target {
@@ -50,7 +50,7 @@ func violation(pkg, imported string, test bool) string {
 		if strings.HasPrefix(pkg, modulePath+"/cmd/") {
 			return ""
 		}
-		return "only the feature itself and cmd/ may import a feature; move the shared code into common/ or expose it through cmd/backend wiring"
+		return "only the feature itself and cmd/ may import a feature; move the shared code into internal/<package> or expose it through cmd/backend wiring"
 	}
 	return ""
 }

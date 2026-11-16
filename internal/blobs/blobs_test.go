@@ -12,10 +12,10 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/rox-projects/golang-tmpl/common/blobs"
-	"github.com/rox-projects/golang-tmpl/common/blobs/large"
-	"github.com/rox-projects/golang-tmpl/common/blobs/small"
 	"github.com/rox-projects/golang-tmpl/database"
+	"github.com/rox-projects/golang-tmpl/internal/blobs"
+	"github.com/rox-projects/golang-tmpl/internal/blobs/large"
+	"github.com/rox-projects/golang-tmpl/internal/blobs/small"
 )
 
 func TestSmallBlobLifecycle(t *testing.T) {

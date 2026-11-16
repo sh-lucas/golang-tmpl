@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rox-projects/golang-tmpl/common/queue/internal/queries"
+	"github.com/rox-projects/golang-tmpl/internal/queue/internal/queries"
 )
 
 const (

@@ -10,8 +10,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/rox-projects/golang-tmpl/common/blobs"
-	"github.com/rox-projects/golang-tmpl/common/mug"
+	"github.com/rox-projects/golang-tmpl/internal/blobs"
+	"github.com/rox-projects/golang-tmpl/internal/mug"
 
 	libsqlhandler "github.com/sh-lucas/libsql-handler"
 )

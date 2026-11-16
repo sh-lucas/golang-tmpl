@@ -6,7 +6,8 @@
 - Crie features com `just mkhandler <nome>`. O SQL-fonte fica junto da feature e gera `<feature>/internal/queries`, importável só pela própria feature. Escreva o SQL, inclusive transformações de dados, em vez de queries cruas em Go.
 - Serviços e integrações externas ficam em `<feature>/internal/<repositório>/`; as queries geradas (`internal/queries`) são um desses repositórios.
 - Recomendação: cada tabela tem uma feature dona, a única que escreve nela. O `internal/` só impede importar as queries de outro dono; nada impede outro `.sql` de escrever na tabela, então respeite isso por convenção.
-- Uma feature não importa outra, e `common/` não importa `internal/` (`tests/architecture_test.go` garante; `common/` também não importa `database/`). Código compartilhado vai para `common/`. Para relaxar uma regra, altere esse teste num PR próprio.
+- Uma feature não importa outra. Código compartilhado vai para `internal/<pacote>` (ex.: `blobs`, `queue`, `mug`), que recebe o `*sql.DB` por parâmetro e não importa `database/` (`tests/architecture_test.go` garante).
+- `blobs` e `queue` guardam tudo no próprio SQLite: servem em produção, mas não substituem S3 ou RabbitMQ; confira se cobrem o caso antes de usar. Para relaxar uma regra, altere esse teste num PR próprio.
 - Prefira funções diretas, dependências explícitas e stdlib. Não crie abstrações sem necessidade.
 
 ## Migrations

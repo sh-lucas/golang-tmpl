@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rox-projects/golang-tmpl/common/queue"
 	"github.com/rox-projects/golang-tmpl/database"
+	"github.com/rox-projects/golang-tmpl/internal/queue"
 )
 
 type payload struct {
