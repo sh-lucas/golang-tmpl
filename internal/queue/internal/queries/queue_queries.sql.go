@@ -7,16 +7,15 @@ package queries
 
 import (
 	"context"
-	"database/sql"
 )
 
 const claimBatch = `-- name: ClaimBatch :many
 UPDATE queue
-SET unavailable_until = strftime('%Y-%m-%d %H:%M:%f', 'now', '+' || CAST(? AS TEXT) || ' seconds')
+SET unavailable_until = strftime('%Y-%m-%d %H:%M:%f', 'now', '+' || CAST(?1 AS TEXT) || ' seconds')
 WHERE id IN (
     SELECT pending.id
     FROM queue AS pending
-    WHERE pending.reference = ?
+    WHERE pending.reference = ?2
       AND pending.processed_at IS NULL
       AND pending.unavailable_until <= strftime('%Y-%m-%d %H:%M:%f', 'now')
     ORDER BY pending.enqueued_at, pending.id
@@ -26,12 +25,12 @@ RETURNING id, data, reference, enqueued_at, unavailable_until, processed_at
 `
 
 type ClaimBatchParams struct {
-	Column1   string `json:"column_1"`
+	Seconds   string `json:"seconds"`
 	Reference string `json:"reference"`
 }
 
 func (q *Queries) ClaimBatch(ctx context.Context, arg ClaimBatchParams) ([]Queue, error) {
-	rows, err := q.db.QueryContext(ctx, claimBatch, arg.Column1, arg.Reference)
+	rows, err := q.db.QueryContext(ctx, claimBatch, arg.Seconds, arg.Reference)
 	if err != nil {
 		return nil, err
 	}
@@ -109,16 +108,16 @@ func (q *Queries) MarkQueueDone(ctx context.Context, id int64) error {
 
 const retryQueue = `-- name: RetryQueue :exec
 UPDATE queue
-SET unavailable_until = strftime('%Y-%m-%d %H:%M:%f', 'now', '+' || ? || ' seconds')
-WHERE id = ? AND processed_at IS NULL
+SET unavailable_until = strftime('%Y-%m-%d %H:%M:%f', 'now', '+' || CAST(?1 AS TEXT) || ' seconds')
+WHERE id = ?2 AND processed_at IS NULL
 `
 
 type RetryQueueParams struct {
-	Column1 sql.NullString `json:"column_1"`
-	ID      int64          `json:"id"`
+	Seconds string `json:"seconds"`
+	ID      int64  `json:"id"`
 }
 
 func (q *Queries) RetryQueue(ctx context.Context, arg RetryQueueParams) error {
-	_, err := q.db.ExecContext(ctx, retryQueue, arg.Column1, arg.ID)
+	_, err := q.db.ExecContext(ctx, retryQueue, arg.Seconds, arg.ID)
 	return err
 }

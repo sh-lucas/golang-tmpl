@@ -4,13 +4,13 @@ sql:
   - engine: "sqlite"
     queries: "internal/features/admins/admins_queries.sql"
     schema: "database/migrations/"
-    gen: { go: { package: "queries", out: "internal/features/admins/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true } }
+    gen: { go: { package: "queries", out: "internal/features/admins/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true, emit_pointers_for_null_types: true } }
   - engine: "sqlite"
     queries: "internal/queue/queue_queries.sql"
     schema: "database/migrations/"
-    gen: { go: { package: "queries", out: "internal/queue/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true } }
+    gen: { go: { package: "queries", out: "internal/queue/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true, emit_pointers_for_null_types: true } }
   - engine: "sqlite"
     queries: "internal/blobs/blobs_queries.sql"
     schema: "database/migrations/"
-    gen: { go: { package: "queries", out: "internal/blobs/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true } }
+    gen: { go: { package: "queries", out: "internal/blobs/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true, emit_pointers_for_null_types: true } }
   # mkhandler:queries

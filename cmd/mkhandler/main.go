@@ -121,7 +121,7 @@ func sqlcBlock(name string) string {
 	return `  - engine: "sqlite"
     queries: "` + dir + "/" + name + `_queries.sql"
     schema: "database/migrations/"
-    gen: { go: { package: "queries", out: "` + dir + `/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true } }
+    gen: { go: { package: "queries", out: "` + dir + `/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true, emit_pointers_for_null_types: true } }
 `
 }
 

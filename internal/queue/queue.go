@@ -3,7 +3,6 @@ package queue
 
 import (
 	"context"
-	databaseSQL "database/sql"
 	json "encoding/json/v2"
 	"errors"
 	"fmt"
@@ -33,7 +32,7 @@ type Item[T any] struct {
 	Reference        string
 	EnqueuedAt       string
 	UnavailableUntil string
-	ProcessedAt      databaseSQL.NullString
+	ProcessedAt      *string
 	Err              error
 
 	queue *Queue[T]
@@ -58,7 +57,7 @@ func (i *Item[T]) Retry(delay string) error {
 		return err
 	}
 	return i.queue.queries.RetryQueue(i.ctx, queries.RetryQueueParams{
-		Column1: databaseSQL.NullString{String: seconds, Valid: true},
+		Seconds: seconds,
 		ID:      i.ID,
 	})
 }
@@ -191,7 +190,7 @@ func (it *Iterator[T]) run() {
 		queried = true
 
 		rows, err := it.queue.queries.ClaimBatch(it.ctx, queries.ClaimBatchParams{
-			Column1:   strconv.Itoa(it.visibilitySeconds),
+			Seconds:   strconv.Itoa(it.visibilitySeconds),
 			Reference: it.reference,
 		})
 		if err != nil {
