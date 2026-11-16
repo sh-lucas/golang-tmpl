@@ -7,10 +7,13 @@ tmp_dir = "tmp"
   bin = "./tmp/main"
   cmd = "sqlc generate && go build -buildvcs=false -o ./tmp/main ./cmd/backend"
   delay = 1000
-  exclude_dir = ["data", "tmp", "vendor", "testdata", "queries"]
+  # Exact paths from the root (Air does not match directory basenames).
+  exclude_dir = ["data", "tmp", "vendor", "testdata", "book", "specs/docs"]
   exclude_file = []
-  exclude_regex = ["_test.go"]
-  exclude_unchanged = false
+  # Generated files: the build itself (sqlc) or just check writes them, so watching them loops.
+  exclude_regex = ["_test\\.go$", "/internal/queries/", "database/schema\\.sql$", "specs/swagger/swagger\\.yaml$"]
+  # sqlc, swag and gofmt rewrite files with identical content.
+  exclude_unchanged = true
   follow_symlink = false
   full_bin = "./tmp/main"
   include_dir = []
