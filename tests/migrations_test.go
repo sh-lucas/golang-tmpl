@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rox-projects/golang-tmpl/internal/database"
-	"github.com/rox-projects/golang-tmpl/migrations"
+	"github.com/rox-projects/golang-tmpl/database"
+	"github.com/rox-projects/golang-tmpl/database/migrations"
 )
 
 var (
@@ -24,7 +24,7 @@ var (
 
 func migrationFiles(t *testing.T) []string {
 	t.Helper()
-	entries, err := os.ReadDir("../migrations")
+	entries, err := os.ReadDir("../database/migrations")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestMigrationFilesAreWellFormed(t *testing.T) {
 		if number, _ := strconv.Atoi(match[1]); number != index+1 {
 			t.Errorf("%s: expected number %03d; migrations must be numbered without gaps or duplicates", name, index+1)
 		}
-		content, err := os.ReadFile(filepath.Join("../migrations", name))
+		content, err := os.ReadFile(filepath.Join("../database/migrations", name))
 		if err != nil {
 			t.Fatal(err)
 		}

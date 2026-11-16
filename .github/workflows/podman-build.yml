@@ -23,7 +23,7 @@ jobs:
       - name: Read version from changelog
         id: version
         run: |
-          VERSION=$(awk '/^## / { if ($0 ~ /^## v[0-9]+\.[0-9]+\.[0-9]+$/) { sub(/^## v/, ""); print } exit }' specs/changelog.md)
+          VERSION=$(awk '/^## / { if ($0 ~ /^## v[0-9]+\.[0-9]+\.[0-9]+$/) { sub(/^## v/, ""); print } exit }' specs/docs/changelog.md)
           test -n "$VERSION" || { echo 'Expected top changelog version in ## vX.Y.Z format' >&2; exit 1; }
           LATEST=$(git tag --sort=-v:refname | head -n 1 | sed 's/^v//')
           if [ -z "$LATEST" ] || { [ "$VERSION" != "$LATEST" ] && [ "$(printf '%s\n' "$LATEST" "$VERSION" | sort -V | tail -n 1)" = "$VERSION" ]; }; then

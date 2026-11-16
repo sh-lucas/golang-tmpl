@@ -22,7 +22,7 @@ Depois execute:
 just run
 ```
 
-O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para configurar `DATABASE_ROOT`, `SERVER_PORT`, `JWT_SECRET` e `DATABASE_ACCESS_KEY` obrigatórios. `DATABASE_ROOT` contém o SQLite principal em `sqlite.db` e os blobs grandes em `large_blobs/`. Ao executar receitas do Just, o `.env` é carregado automaticamente; executando o binário diretamente, a aplicação lê apenas variáveis exportadas pelo ambiente.
+O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para configurar `DATABASE_ROOT`, `SERVER_PORT`, `JWT_SECRET` e `DATABASE_ACCESS_KEY` obrigatórios. `DATABASE_ROOT` (padrão `data/`, fora do git) contém o estado da aplicação: o SQLite principal em `sqlite.db` e os blobs grandes em `large_blobs/`. Ao executar receitas do Just, o `.env` é carregado automaticamente; executando o binário diretamente, a aplicação lê apenas variáveis exportadas pelo ambiente.
 
 ## Autenticação de exemplo
 
@@ -35,9 +35,9 @@ O Air executa `sqlc generate` antes de cada build. Copie `.env.example` para con
 
 Criação e login recebem `{"email":"admin@example.com","password":"correct horse battery staple"}`.
 
-Cada domínio vive em `internal/features/<feature>`. O SQL-fonte fica junto da feature e gera, pelo `sqlc.yaml`, o pacote `<feature>/internal/queries`, que só a própria feature consegue importar. Recomendamos que cada tabela tenha uma feature dona, a única que escreve nela; isso é convenção, porque outro `.sql` ainda pode escrever na tabela. Crie features com `just mkhandler <nome>`. As migrations são aplicadas automaticamente.
+Cada domínio vive em `internal/features/<feature>`. O SQL-fonte fica junto da feature e gera, pelo `sqlc.yaml`, o pacote `<feature>/internal/queries`, que só a própria feature consegue importar. Recomendamos que cada tabela tenha uma feature dona, a única que escreve nela; isso é convenção, porque outro `.sql` ainda pode escrever na tabela. Crie features com `just mkhandler <nome>`. As migrations ficam em `database/migrations/` e são aplicadas automaticamente; `database/schema.sql` mostra o schema resultante, regenerado pelo `just check`.
 
-O teste `internal/architecture` falha se uma feature importar outra ou se `common/` importar `internal/`. A CI executa `just check` e falha se o código gerado ou a formatação não estiverem commitados.
+O teste `tests/architecture_test.go` falha se uma feature importar outra ou se `common/` importar `internal/` ou `database/`. A CI executa `just check` e falha se o código gerado ou a formatação não estiverem commitados.
 
 Backup contínuo com [Litestream](https://litestream.io) é opcional: descomente o bloco no fim do `Dockerfile` e defina `LITESTREAM_REPLICA_URL`, `LITESTREAM_ACCESS_KEY_ID` e `LITESTREAM_SECRET_ACCESS_KEY` no runtime. Com o volume vazio, o banco é restaurado automaticamente da réplica.
 

@@ -120,7 +120,7 @@ func sqlcBlock(name string) string {
 	dir := "internal/features/" + name
 	return `  - engine: "sqlite"
     queries: "` + dir + "/" + name + `_queries.sql"
-    schema: "migrations/"
+    schema: "database/migrations/"
     gen: { go: { package: "queries", out: "` + dir + `/internal/queries", sql_package: "database/sql", emit_empty_slices: true, emit_json_tags: true } }
 `
 }

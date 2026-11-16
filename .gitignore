@@ -1,11 +1,6 @@
 # Binaries
 bin/
 
-# Database files
-data/*.db
-data/*.db-shm
-data/*.db-wal
-
 # Go toolchain
 *.test
 *.out
@@ -17,6 +12,5 @@ data/*.db-wal
 *.db
 
 # Auto-generated
-schema.sql
 tmp/
 /book

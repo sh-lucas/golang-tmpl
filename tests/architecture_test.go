@@ -1,5 +1,6 @@
-// Package architecture enforces import boundaries that the Go compiler does not.
-package architecture_test
+package tests
+
+// Import boundaries that the Go compiler does not enforce.
 
 import (
 	"os/exec"
@@ -8,9 +9,9 @@ import (
 )
 
 const (
-	module   = "github.com/rox-projects/golang-tmpl"
-	features = module + "/internal/features/"
-	database = module + "/internal/database"
+	modulePath   = "github.com/rox-projects/golang-tmpl"
+	featuresPath = modulePath + "/internal/features/"
+	databasePath = modulePath + "/database"
 )
 
 func TestImportBoundaries(t *testing.T) {
@@ -19,7 +20,7 @@ func TestImportBoundaries(t *testing.T) {
 		if test {
 			format = `{{.ImportPath}} {{join .TestImports " "}} {{join .XTestImports " "}}`
 		}
-		out, err := exec.Command("go", "list", "-f", format, module+"/...").Output()
+		out, err := exec.Command("go", "list", "-f", format, modulePath+"/...").Output()
 		if err != nil {
 			t.Fatalf("go list: %v", err)
 		}
@@ -36,17 +37,17 @@ func TestImportBoundaries(t *testing.T) {
 
 func violation(pkg, imported string, test bool) string {
 	// Exception: any package's tests may open the migrated application database.
-	if test && imported == database {
+	if test && imported == databasePath {
 		return ""
 	}
-	if strings.HasPrefix(pkg, module+"/common/") && strings.HasPrefix(imported, module+"/internal/") {
+	if strings.HasPrefix(pkg, modulePath+"/common/") && (strings.HasPrefix(imported, modulePath+"/internal/") || strings.HasPrefix(imported, databasePath)) {
 		return "common/ is reusable and must not depend on the application; move the shared code into common/ or pass it in as a parameter"
 	}
 	if target, ok := feature(imported); ok {
 		if own, inFeature := feature(pkg); inFeature && own == target {
 			return ""
 		}
-		if strings.HasPrefix(pkg, module+"/cmd/") {
+		if strings.HasPrefix(pkg, modulePath+"/cmd/") {
 			return ""
 		}
 		return "only the feature itself and cmd/ may import a feature; move the shared code into common/ or expose it through cmd/backend wiring"
@@ -55,7 +56,7 @@ func violation(pkg, imported string, test bool) string {
 }
 
 func feature(pkg string) (string, bool) {
-	rest, ok := strings.CutPrefix(pkg, features)
+	rest, ok := strings.CutPrefix(pkg, featuresPath)
 	if !ok {
 		return "", false
 	}

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/rox-projects/golang-tmpl/internal/database"
+	"github.com/rox-projects/golang-tmpl/database"
 )
 
 func TestOpenMigratesDatabase(t *testing.T) {

@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rox-projects/golang-tmpl/internal/database"
+	"github.com/rox-projects/golang-tmpl/database"
 )
 
 // Keep drainTimeout in sync with cmd/backend; shutdownTimeout is the limit we

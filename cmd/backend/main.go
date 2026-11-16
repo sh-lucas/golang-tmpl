@@ -14,11 +14,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rox-projects/golang-tmpl/docs"
-	"github.com/rox-projects/golang-tmpl/internal/database"
+	"github.com/rox-projects/golang-tmpl/database"
 	"github.com/rox-projects/golang-tmpl/internal/features/admins"
 	"github.com/rox-projects/golang-tmpl/internal/features/health"
 	"github.com/rox-projects/golang-tmpl/internal/features/libsql"
+	"github.com/rox-projects/golang-tmpl/specs/swagger"
 	// mkhandler:imports
 )
 
@@ -142,7 +142,7 @@ func redirectSwagger(w http.ResponseWriter, request *http.Request) {
 
 func serveSwagger(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write(docs.SwaggerJSON)
+	_, _ = w.Write(swagger.SwaggerJSON)
 }
 
 func env(name, fallback string) string {

@@ -13,7 +13,7 @@
 
 ## Leia antes de mexer
 
-Detalhes ficam em `specs/agents/` (fora do mdBook publicado; `specs/` fora dessa pasta é documentação externa):
+Detalhes ficam em `specs/agents/` (fora do mdBook publicado, que fica em `specs/docs/`; o Swagger gerado fica em `specs/swagger/`):
 
 - `specs/agents/architecture.md`: features, SQL/sqlc, `common/`, regras de import. Leia antes de criar ou mover código.
 - `specs/agents/testing.md`: TDD, testes de feature e de `tests/`. Leia antes de escrever testes.

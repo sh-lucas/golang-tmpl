@@ -14,6 +14,7 @@
 - Testes de uma feature: na pasta da feature.
 - Testes cross-feature e de processo: em `tests/`.
   - `migrations_test.go`: nomes, instruções proibidas, aplicação limpa e idempotente. Rápido; roda no `just check`.
+  - `architecture_test.go`: fronteiras de import (feature x feature, `common/` x `internal/` e `database/`). Rápido; roda no `just check`.
   - Arquivos com `//go:build integration` compilam `cmd/backend` uma vez (`TestMain`) e rodam o binário de verdade, sem importar features. São lentos e **não** rodam no `just check`, no pre-commit nem na CI; rode com `just test-integration` ao mexer em `cmd/backend`, shutdown, snapshot ou Litestream. O `go vet -tags integration` do `check` garante que continuem compilando.
     - `shutdown_test.go`: drenagem de requisições, limite de tempo, segundo sinal, conexões nunca usadas, banco sem `-wal`/`-shm` ao sair.
     - `litestream_test.go`: o mesmo comando do bloco opcional do `Dockerfile`, com réplica `file://`. É pulado se `litestream` não estiver no `PATH`.

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/rox-projects/golang-tmpl/common/queue"
-	"github.com/rox-projects/golang-tmpl/internal/database"
+	"github.com/rox-projects/golang-tmpl/database"
 )
 
 type payload struct {

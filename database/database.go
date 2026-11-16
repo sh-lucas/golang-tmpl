@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/rox-projects/golang-tmpl/migrations"
+	"github.com/rox-projects/golang-tmpl/database/migrations"
 	_ "modernc.org/sqlite"
 )
 

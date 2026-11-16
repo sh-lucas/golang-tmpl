@@ -16,9 +16,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rox-projects/golang-tmpl/internal/database"
+	"github.com/rox-projects/golang-tmpl/database"
+	"github.com/rox-projects/golang-tmpl/database/migrations"
 	"github.com/rox-projects/golang-tmpl/internal/features/libsql"
-	"github.com/rox-projects/golang-tmpl/migrations"
 )
 
 const accessKey = "test-access-key"

@@ -6,12 +6,13 @@
 - Crie features com `just mkhandler <nome>`. O SQL-fonte fica junto da feature e gera `<feature>/internal/queries`, importável só pela própria feature. Escreva o SQL, inclusive transformações de dados, em vez de queries cruas em Go.
 - Serviços e integrações externas ficam em `<feature>/internal/<repositório>/`; as queries geradas (`internal/queries`) são um desses repositórios.
 - Recomendação: cada tabela tem uma feature dona, a única que escreve nela. O `internal/` só impede importar as queries de outro dono; nada impede outro `.sql` de escrever na tabela, então respeite isso por convenção.
-- Uma feature não importa outra, e `common/` não importa `internal/` (`internal/architecture` garante). Código compartilhado vai para `common/`. Para relaxar uma regra, altere esse teste num PR próprio.
+- Uma feature não importa outra, e `common/` não importa `internal/` (`tests/architecture_test.go` garante; `common/` também não importa `database/`). Código compartilhado vai para `common/`. Para relaxar uma regra, altere esse teste num PR próprio.
 - Prefira funções diretas, dependências explícitas e stdlib. Não crie abstrações sem necessidade.
 
 ## Migrations
 
-- Ficam em `migrations/NNN_snake_case.sql`, numeradas em sequência sem buracos, e rodam automaticamente na abertura do banco, cada uma na própria transação.
+- Ficam em `database/migrations/NNN_snake_case.sql`, numeradas em sequência sem buracos, e rodam automaticamente na abertura do banco, cada uma na própria transação.
 - Não use `BEGIN`/`COMMIT`/`PRAGMA`/`VACUUM` dentro delas; `tests/migrations_test.go` barra isso.
 - Nunca edite uma migration já aplicada em produção; crie uma nova.
+- `database/schema.sql` é o schema após todas as migrations, gerado pelo `just check` (`cmd/schema`); não edite à mão.
 - Migrações com seeds (*dirty migrations*) são permitidas, e recomendadas para testar persistência entre migrations.

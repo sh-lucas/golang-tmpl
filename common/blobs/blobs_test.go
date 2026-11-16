@@ -15,7 +15,7 @@ import (
 	"github.com/rox-projects/golang-tmpl/common/blobs"
 	"github.com/rox-projects/golang-tmpl/common/blobs/large"
 	"github.com/rox-projects/golang-tmpl/common/blobs/small"
-	"github.com/rox-projects/golang-tmpl/internal/database"
+	"github.com/rox-projects/golang-tmpl/database"
 )
 
 func TestSmallBlobLifecycle(t *testing.T) {

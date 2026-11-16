@@ -2,7 +2,7 @@
 title = "Golang Template"
 description = "Template project for Go services."
 authors = ["sh-lucas"]
-src = "specs"
+src = "specs/docs"
 language = "en"
 
 [build]

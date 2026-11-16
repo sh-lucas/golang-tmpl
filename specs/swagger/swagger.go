@@ -1,5 +1,5 @@
-// Package docs embeds the generated OpenAPI specification.
-package docs
+// Package swagger embeds the generated OpenAPI specification.
+package swagger
 
 import _ "embed"
 

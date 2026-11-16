@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rox-projects/golang-tmpl/internal/database"
-	"github.com/rox-projects/golang-tmpl/migrations"
+	"github.com/rox-projects/golang-tmpl/database"
+	"github.com/rox-projects/golang-tmpl/database/migrations"
 	"modernc.org/sqlite"
 )
 

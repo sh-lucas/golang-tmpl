@@ -1,0 +1,3 @@
+# Runtime state (DATABASE_ROOT): databases, large_blobs/, backups/.
+*
+!.gitignore
