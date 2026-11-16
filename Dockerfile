@@ -7,7 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN mkdir -p /src/book
+RUN mkdir -p /src/specs/book
 RUN go test ./...
 
 ARG CGO_ENABLED=0
@@ -17,7 +17,7 @@ RUN test "$CGO_ENABLED" = "0" && CGO_ENABLED="$CGO_ENABLED" GOOS=linux go build 
 FROM scratch
 
 COPY --from=builder /backend /backend
-COPY --from=builder /src/book /book
+COPY --from=builder /src/specs/book /book
 # TLS roots for outbound HTTPS (health probe, Litestream S3).
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 

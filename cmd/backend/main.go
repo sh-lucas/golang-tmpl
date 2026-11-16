@@ -70,7 +70,7 @@ func run() (runErr error) {
 		}
 	}()
 	health.RegisterRoutes(mux, health.Options{DatabasePath: filepath.Join(databaseRoot, "sqlite.db")})
-	docsRoot := env("BOOK_ROOT", "book")
+	docsRoot := env("BOOK_ROOT", "specs/book")
 	mux.Handle("GET /docs/", http.StripPrefix("/docs/", http.FileServer(http.Dir(docsRoot))))
 	mux.HandleFunc("GET /docs", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/docs/", http.StatusPermanentRedirect)

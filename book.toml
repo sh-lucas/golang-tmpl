@@ -6,7 +6,7 @@ src = "specs/docs"
 language = "en"
 
 [build]
-build-dir = "book"
+build-dir = "specs/book"
 create-missing = false
 
 [output.html]

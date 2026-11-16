@@ -42,7 +42,4 @@ Mesmo Bearer token do `/libsql` (`DATABASE_ACCESS_KEY`), que já dá controle to
 ## Docker
 
 - Imagem final `scratch` com `/backend`, o mdBook e os certificados de CA (HTTPS de saída). Não há shell; para inspecionar o banco use `/libsql` ou `/libsql/snapshot`.
-
-## Variáveis de ambiente
-
-- `DATABASE_ROOT` (padrão `data`), `SERVER_PORT` (padrão `3000`), `JWT_SECRET` (obrigatória), `DATABASE_ACCESS_KEY` (obrigatória), `BOOK_ROOT` (padrão `book`) e, com Litestream, as três acima.
+**Jamais** teste imagens OCI com o litstream ligado ou apontando para o object storage remoto.

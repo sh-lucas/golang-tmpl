@@ -8,7 +8,7 @@ tmp_dir = "tmp"
   cmd = "sqlc generate && go build -buildvcs=false -o ./tmp/main ./cmd/backend"
   delay = 1000
   # Exact paths from the root (Air does not match directory basenames).
-  exclude_dir = ["data", "tmp", "vendor", "testdata", "book", "specs/docs"]
+  exclude_dir = ["data", "tmp", "vendor", "testdata", "specs/book", "specs/docs"]
   exclude_file = []
   # Generated files: the build itself (sqlc) or just check writes them, so watching them loops.
   exclude_regex = ["_test\\.go$", "/internal/queries/", "database/schema\\.sql$", "specs/swagger/swagger\\.yaml$"]
