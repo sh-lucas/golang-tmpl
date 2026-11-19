@@ -60,12 +60,15 @@ func problem(status int, message string) Response {
 }
 
 // Route adapts an endpoint handler to net/http. It accepts an optional JSON
-// request body, rejects unknown fields, and validates it using validate tags.
+// request body, rejects unknown fields, fills path/query/header/cookie tagged
+// fields (see paramSources), and validates the result using validate tags.
+// It panics if T has misconfigured param tags.
 func Route[T any](handler Handler[T]) http.Handler {
 	validate := newValidator()
+	params := paramsOf(reflect.TypeFor[T]())
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var input T
-		if response := decodeAndValidate(w, r, &input, validate); response != nil {
+		if response := decodeAndValidate(w, r, &input, params, validate); response != nil {
 			response.WriteHTTP(w)
 			return
 		}
@@ -73,7 +76,7 @@ func Route[T any](handler Handler[T]) http.Handler {
 	})
 }
 
-func decodeAndValidate(w http.ResponseWriter, r *http.Request, input any, validate *validator.Validate) Response {
+func decodeAndValidate[T any](w http.ResponseWriter, r *http.Request, input *T, params []param, validate *validator.Validate) Response {
 	if r.Body != nil && r.Body != http.NoBody && r.ContentLength != 0 {
 		mediaType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 		if err != nil || mediaType != "application/json" {
@@ -84,6 +87,9 @@ func decodeAndValidate(w http.ResponseWriter, r *http.Request, input any, valida
 			return BadRequest("invalid JSON body")
 		}
 	}
+	if invalid := readParams(r, params, reflect.ValueOf(input).Elem()); invalid != nil {
+		return validationFailed(invalid)
+	}
 	if err := validate.Struct(input); err != nil {
 		fields := map[string]string{}
 		var validationErrors validator.ValidationErrors
@@ -92,14 +98,23 @@ func decodeAndValidate(w http.ResponseWriter, r *http.Request, input any, valida
 				fields[field.Field()] = field.Tag()
 			}
 		}
-		return JSON(http.StatusBadRequest, map[string]any{"error": "validation failed", "fields": fields})
+		return validationFailed(fields)
 	}
 	return nil
+}
+
+func validationFailed(fields map[string]string) Response {
+	return JSON(http.StatusBadRequest, map[string]any{"error": "validation failed", "fields": fields})
 }
 
 func newValidator() *validator.Validate {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	validate.RegisterTagNameFunc(func(field reflect.StructField) string {
+		for _, source := range paramSources {
+			if name := field.Tag.Get(source); name != "" {
+				return source + "." + name
+			}
+		}
 		name := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
 		if name == "-" {
 			return ""
